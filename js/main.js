@@ -12,7 +12,7 @@ var map = document.querySelector('.map__pins');
 
 var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+};
 
 var getFacilities = function () {
   var allFacilitiesLength = allFacilities.length;
@@ -20,17 +20,17 @@ var getFacilities = function () {
     var randomFacilitie = getRandomNumber(0, allFacilities.length - 1);
     currentFacilities.push(allFacilities[randomFacilitie]);
     allFacilities.splice(randomFacilitie, 1);
-  };
+  }
 
-  for (var i = 0; i < currentFacilities.length; i++) {
-    allFacilities.push(currentFacilities[i]);
-  };
+  currentFacilities.forEach(function (faciliti) {
+    allFacilities.push(faciliti);
+  });
 };
 
 var getHomePhotos = function () {
   for (var i = 1; i < getRandomNumber(2, 4); i++) {
-    homePhotos.push('http://o0.github.io/assets/images/tokyo/hotel' + i + '.jpg')
-  };
+    homePhotos.push('http://o0.github.io/assets/images/tokyo/hotel' + i + '.jpg');
+  }
 };
 
 var getLocationX = function () {
@@ -43,7 +43,7 @@ getHomePhotos();
 
 
 for (var i = 1; i < 9; i++) {
-  var ad = {
+  var advert = {
     'author': {
       'avatar': 'img/avatars/user0' + i + '.png'
     },
@@ -60,14 +60,14 @@ for (var i = 1; i < 9; i++) {
       'description': 'Описание' + i,
       'photos': homePhotos
     },
-      'location': {
-        'x': getRandomNumber(1, getLocationX()),
-        'y': getRandomNumber(130, 630)
+    'location': {
+      'x': getRandomNumber(1, getLocationX()),
+      'y': getRandomNumber(130, 630)
     }
   };
 
-  ads.push(ad);
-};
+  ads.push(advert);
+}
 
 document.querySelector('.map').classList.remove('map--faded');
 
@@ -88,8 +88,8 @@ var renderAd = function (ad) {
 
 var fragment = document.createDocumentFragment();
 
-for (var i = 0; i < ads.length; i++) {
-  fragment.appendChild(renderAd(ads[i]));
-};
+ads.forEach(function (ad) {
+  fragment.appendChild(renderAd(ad));
+});
 
 adListElement.appendChild(fragment);
