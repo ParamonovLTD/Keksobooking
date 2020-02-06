@@ -74,7 +74,7 @@ var getPinsData = function () {
 
 getPinsData();
 
-document.querySelector('.map').classList.remove('map--faded');
+// document.querySelector('.map').classList.remove('map--faded');
 
 var pinListElement = mapPins;
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -140,3 +140,67 @@ cardFragment.appendChild(renderCard(pins[0]));
 var mapFiltersContainer = document.querySelector('.map__filters-container');
 var map = document.querySelector('.map');
 map.insertBefore(cardFragment, mapFiltersContainer);
+
+
+var mainMapPin = mapPins.querySelector('.map__pin--main');
+var adForm = document.querySelector('.ad-form');
+var formInputs = adForm.querySelectorAll('input');
+var formSelectors = adForm.querySelectorAll('select');
+var mapFilters = mapFiltersContainer.querySelector('.map__filters');
+
+var onMapTransition = function (evt) {
+  if (evt.which === 1 || evt.keyCode === 13) {
+    map.classList.remove('map--faded');
+    adForm.classList.remove('ad-form--disabled');
+    formInputs.forEach(function (input) {
+      input.removeAttribute('disabled');
+    });
+    formInputs.forEach(function (input) {
+      input.parentElement.removeAttribute('disabled');
+    });
+    formSelectors.forEach(function (select) {
+      select.removeAttribute('disabled');
+    });
+    formSelectors.forEach(function (select) {
+      select.parentElement.removeAttribute('disabled');
+    });
+    mapFilters.classList.remove('map__filters--disabled');
+  }
+};
+
+var addressInput = adForm.querySelector('#address');
+
+var fillAddress = function () {
+  addressInput.value = Math.floor(mainMapPin.offsetWidth / 2 + mainMapPin.offsetLeft) + ', ' + Math.floor(mainMapPin.offsetHeight + mainMapPin.offsetTop);
+};
+
+mainMapPin.addEventListener('mousedown', onMapTransition);
+mainMapPin.addEventListener('mousedown', fillAddress);
+
+mainMapPin.addEventListener('keydown', onMapTransition);
+
+var adRoomsSelect = adForm.querySelector('#room_number');
+var adCapacitySelect = adForm.querySelector('#capacity');
+
+var asd = function () {
+  if (+adRoomsSelect.value > 10 && +adCapacitySelect.value !== 0) {
+    adRoomsSelect.setCustomValidity('Этот нечеловеческий дом не для гостей.');
+  } else if (+adCapacitySelect.value > +adRoomsSelect.value) {
+    adCapacitySelect.setCustomValidity('Количество гостей не может быть больше, чем число комнат.');
+  } else {
+    adRoomsSelect.setCustomValidity('');
+    adCapacitySelect.setCustomValidity('');
+  }
+  console.log(typeof +adRoomsSelect.value);
+  console.log(typeof +adCapacitySelect.value);
+};
+
+if (+adCapacitySelect.value > +adRoomsSelect.value) {
+  adCapacitySelect.setCustomValidity('Количество гостей не может быть больше, чем число комнат.');
+} else if (+adRoomsSelect.value > 10 && +adCapacitySelect.value !== 0) {
+  adRoomsSelect.setCustomValidity('Этот нечеловеческий дом не для гостей.');
+}
+
+adRoomsSelect.addEventListener('change', asd);
+
+adCapacitySelect.addEventListener('change', asd);
