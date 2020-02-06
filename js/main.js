@@ -191,8 +191,6 @@ var asd = function () {
     adRoomsSelect.setCustomValidity('');
     adCapacitySelect.setCustomValidity('');
   }
-  console.log(typeof +adRoomsSelect.value);
-  console.log(typeof +adCapacitySelect.value);
 };
 
 if (+adCapacitySelect.value > +adRoomsSelect.value) {
