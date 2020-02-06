@@ -182,7 +182,7 @@ mainMapPin.addEventListener('keydown', onMapTransition);
 var adRoomsSelect = adForm.querySelector('#room_number');
 var adCapacitySelect = adForm.querySelector('#capacity');
 
-var asd = function () {
+var onInvalidSelectors = function () {
   if (+adRoomsSelect.value > 10 && +adCapacitySelect.value !== 0) {
     adRoomsSelect.setCustomValidity('Этот нечеловеческий дом не для гостей.');
   } else if (+adCapacitySelect.value > +adRoomsSelect.value) {
@@ -199,6 +199,6 @@ if (+adCapacitySelect.value > +adRoomsSelect.value) {
   adRoomsSelect.setCustomValidity('Этот нечеловеческий дом не для гостей.');
 }
 
-adRoomsSelect.addEventListener('change', asd);
+adRoomsSelect.addEventListener('change', onInvalidSelectors);
 
-adCapacitySelect.addEventListener('change', asd);
+adCapacitySelect.addEventListener('change', onInvalidSelectors);
