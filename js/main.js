@@ -93,7 +93,7 @@ pins.forEach(function (pin) {
   pinsFragment.appendChild(renderPin(pin));
 });
 
-pinListElement.appendChild(pinsFragment);
+// pinListElement.appendChild(pinsFragment);
 
 var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
@@ -139,8 +139,6 @@ cardFragment.appendChild(renderCard(pins[0]));
 
 var mapFiltersContainer = document.querySelector('.map__filters-container');
 var map = document.querySelector('.map');
-map.insertBefore(cardFragment, mapFiltersContainer);
-
 
 var mainMapPin = mapPins.querySelector('.map__pin--main');
 var adForm = document.querySelector('.ad-form');
@@ -149,19 +147,17 @@ var formSelectors = adForm.querySelectorAll('select');
 var mapFilters = mapFiltersContainer.querySelector('.map__filters');
 
 var onMapTransition = function (evt) {
+  pinListElement.appendChild(pinsFragment);
+  map.insertBefore(cardFragment, mapFiltersContainer);
   if (evt.which === 1 || evt.keyCode === 13) {
     map.classList.remove('map--faded');
     adForm.classList.remove('ad-form--disabled');
     formInputs.forEach(function (input) {
       input.removeAttribute('disabled');
-    });
-    formInputs.forEach(function (input) {
       input.parentElement.removeAttribute('disabled');
     });
     formSelectors.forEach(function (select) {
       select.removeAttribute('disabled');
-    });
-    formSelectors.forEach(function (select) {
       select.parentElement.removeAttribute('disabled');
     });
     mapFilters.classList.remove('map__filters--disabled');
@@ -174,10 +170,45 @@ var fillAddress = function () {
   addressInput.value = Math.floor(mainMapPin.offsetWidth / 2 + mainMapPin.offsetLeft) + ', ' + Math.floor(mainMapPin.offsetHeight + mainMapPin.offsetTop);
 };
 
-mainMapPin.addEventListener('mousedown', onMapTransition);
-mainMapPin.addEventListener('mousedown', fillAddress);
+window.onload = function () {
+  fillAddress();
+};
 
-mainMapPin.addEventListener('keydown', onMapTransition);
+var inactiveToActive = function () {
+  mainMapPin.addEventListener('mousedown', onMapTransition);
+  mainMapPin.addEventListener('mousedown', fillAddress);
+  mainMapPin.addEventListener('keydown', onMapTransition);
+};
+
+inactiveToActive();
+
+var minPrices = {
+  bungalo: '0',
+  flat: '1000',
+  house: '5000',
+  palace: '10000'
+};
+var adHomeType = adForm.querySelector('#type');
+var adNightPrice = adForm.querySelector('#price');
+var getMinPriceOfNight = function () {
+  adNightPrice.setAttribute('placeholder', minPrices[adHomeType.value]);
+  adNightPrice.setAttribute('min', minPrices[adHomeType.value]);
+};
+adHomeType.addEventListener('change', getMinPriceOfNight);
+
+var adTimeIn = adForm.querySelector('#timein');
+var adTimeOut = adForm.querySelector('#timeout');
+var onTimeInChange = function () {
+  adTimeOut.value = adTimeIn.value;
+};
+var onTimeOutChange = function () {
+  adTimeIn.value = adTimeOut.value;
+};
+var adTimeChange = function () {
+  adTimeIn.addEventListener('change', onTimeInChange);
+  adTimeOut.addEventListener('change', onTimeOutChange);
+};
+adTimeChange();
 
 var adRoomsSelect = adForm.querySelector('#room_number');
 var adCapacitySelect = adForm.querySelector('#capacity');
@@ -193,12 +224,16 @@ var onInvalidSelectors = function () {
   }
 };
 
-if (+adCapacitySelect.value > +adRoomsSelect.value) {
-  adCapacitySelect.setCustomValidity('Количество гостей не может быть больше, чем число комнат.');
-} else if (+adRoomsSelect.value > 10 && +adCapacitySelect.value !== 0) {
-  adRoomsSelect.setCustomValidity('Этот нечеловеческий дом не для гостей.');
-}
-
-adRoomsSelect.addEventListener('change', onInvalidSelectors);
-
-adCapacitySelect.addEventListener('change', onInvalidSelectors);
+var invalidSelectorsWithoutChanges = function () {
+  if (+adCapacitySelect.value > +adRoomsSelect.value) {
+    adCapacitySelect.setCustomValidity('Количество гостей не может быть больше, чем число комнат.');
+  } else if (+adRoomsSelect.value > 10 && +adCapacitySelect.value !== 0) {
+    adRoomsSelect.setCustomValidity('Этот нечеловеческий дом не для гостей.');
+  }
+};
+invalidSelectorsWithoutChanges();
+var invalidSelectorsValue = function () {
+  adRoomsSelect.addEventListener('change', onInvalidSelectors);
+  adCapacitySelect.addEventListener('change', onInvalidSelectors);
+};
+invalidSelectorsValue();
