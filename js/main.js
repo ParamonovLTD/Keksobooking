@@ -12,6 +12,7 @@ var checkouts = ['12:00', '13:00', '14:00'];
 var allFeatures = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var currentFeatures = [];
 var homePhotos = [];
+var map = document.querySelector('.map');
 var mapPins = document.querySelector('.map__pins');
 
 var getRandomNumber = function (min, max) {
@@ -44,28 +45,34 @@ getFeatures();
 
 getHomePhotos();
 
+var pinsQuantity = 8;
+var pinTopCoordinateMin = 130;
+var pinTopCoordinateMax = 630;
+var pinLeftCoordinateMin = 0;
+var pinLeftCoordinateMax = getLocationX();
+
 var getPinsData = function () {
-  for (var i = 0; i < 8; i++) {
+  for (var i = 0; i < pinsQuantity; i++) {
     var data = {
-      'author': {
-        'avatar': 'img/avatars/user0' + (i + 1) + '.png'
+      author: {
+        avatar: 'img/avatars/user0' + (i + 1) + '.png'
       },
-      'offer': {
-        'title': 'Заголовок ' + (i + 1),
-        'address': 'Адрес' + (i + 1),
-        'price': 'Цена' + (i + 1),
-        'type': Object.keys(homeTypes)[getRandomNumber(0, 3)],
-        'rooms': getRandomNumber(1, 5),
-        'guests': getRandomNumber(1, 4),
-        'checkin': checkins[getRandomNumber(0, 2)],
-        'checkout': checkouts[getRandomNumber(0, 2)],
-        'features': currentFeatures,
-        'description': 'Описание' + (i + 1),
-        'photos': homePhotos
+      offer: {
+        title: i + 1,
+        address: i + 1,
+        price: i + 1,
+        type: Object.keys(homeTypes)[getRandomNumber(0, 3)],
+        rooms: getRandomNumber(1, 5),
+        guests: getRandomNumber(1, 4),
+        checkin: checkins[getRandomNumber(0, 2)],
+        checkout: checkouts[getRandomNumber(0, 2)],
+        features: currentFeatures,
+        description: i + 1,
+        photos: homePhotos
       },
-      'location': {
-        'x': getRandomNumber(0, getLocationX()),
-        'y': getRandomNumber(130, 630)
+      location: {
+        x: getRandomNumber(pinLeftCoordinateMin, pinLeftCoordinateMax),
+        y: getRandomNumber(pinTopCoordinateMin, pinTopCoordinateMax)
       }
     };
     pins.push(data);
@@ -73,8 +80,6 @@ var getPinsData = function () {
 };
 
 getPinsData();
-
-// document.querySelector('.map').classList.remove('map--faded');
 
 var pinListElement = mapPins;
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -87,17 +92,19 @@ var renderPin = function (pinData) {
   return pinElement;
 };
 
-var pinsFragment = document.createDocumentFragment();
+var appendPins = function () {
+  var pinsFragment = document.createDocumentFragment();
 
-pins.forEach(function (pin) {
-  pinsFragment.appendChild(renderPin(pin));
-});
+  pins.forEach(function (pin) {
+    pinsFragment.appendChild(renderPin(pin));
+  });
 
-// pinListElement.appendChild(pinsFragment);
+  pinListElement.appendChild(pinsFragment);
+
+  insertCard();
+};
 
 var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
-
-var cardFragment = document.createDocumentFragment();
 
 var renderFeatures = function (cardElement, pinData) {
   var cardFeatures = cardElement.querySelectorAll('.popup__feature');
@@ -135,10 +142,39 @@ var renderCard = function (pinData) {
   return cardElement;
 };
 
-cardFragment.appendChild(renderCard(pins[0]));
+var onEscapeKeydown = function (evt) {
+  var mapCard = map.querySelector('.map__card');
+  if (mapCard && evt.keyCode === 27) {
+    map.removeChild(mapCard);
+  }
+};
+
+var insertCard = function () {
+  var allPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+  var cardFragment = document.createDocumentFragment();
+
+  pins.forEach(function (pin, index) {
+    allPins[index].addEventListener('click', function () {
+
+      var mapCard = document.querySelector('.map__card');
+      if (mapCard) {
+        map.removeChild(mapCard);
+      }
+      cardFragment.appendChild(renderCard(pin));
+      map.insertBefore(cardFragment, mapFiltersContainer);
+      mapCard = document.querySelector('.map__card');
+      if (mapCard) {
+        var mapCardClose = mapCard.querySelector('.popup__close');
+        mapCardClose.addEventListener('click', function () {
+          map.removeChild(mapCard);
+        });
+      }
+      window.addEventListener('keydown', onEscapeKeydown);
+    });
+  });
+};
 
 var mapFiltersContainer = document.querySelector('.map__filters-container');
-var map = document.querySelector('.map');
 
 var mainMapPin = mapPins.querySelector('.map__pin--main');
 var adForm = document.querySelector('.ad-form');
@@ -147,8 +183,7 @@ var formSelectors = adForm.querySelectorAll('select');
 var mapFilters = mapFiltersContainer.querySelector('.map__filters');
 
 var onMapTransition = function (evt) {
-  pinListElement.appendChild(pinsFragment);
-  map.insertBefore(cardFragment, mapFiltersContainer);
+  appendPins();
   if (evt.which === 1 || evt.keyCode === 13) {
     map.classList.remove('map--faded');
     adForm.classList.remove('ad-form--disabled');
@@ -170,9 +205,10 @@ var fillAddress = function () {
   addressInput.value = Math.floor(mainMapPin.offsetWidth / 2 + mainMapPin.offsetLeft) + ', ' + Math.floor(mainMapPin.offsetHeight + mainMapPin.offsetTop);
 };
 
-window.onload = function () {
-  fillAddress();
+var addressOnload = function () {
+  document.addEventListener('DOMContentLoaded', fillAddress);
 };
+addressOnload();
 
 var inactiveToActive = function () {
   mainMapPin.addEventListener('mousedown', onMapTransition);
@@ -190,11 +226,18 @@ var minPrices = {
 };
 var adHomeType = adForm.querySelector('#type');
 var adNightPrice = adForm.querySelector('#price');
-var getMinPriceOfNight = function () {
+
+var onHomeTypeChange = function () {
   adNightPrice.setAttribute('placeholder', minPrices[adHomeType.value]);
   adNightPrice.setAttribute('min', minPrices[adHomeType.value]);
 };
-adHomeType.addEventListener('change', getMinPriceOfNight);
+
+var homeTypeChange = function () {
+  adHomeType.addEventListener('change', onHomeTypeChange);
+  document.addEventListener('DOMContentLoaded', onHomeTypeChange);
+};
+homeTypeChange();
+
 
 var adTimeIn = adForm.querySelector('#timein');
 var adTimeOut = adForm.querySelector('#timeout');
