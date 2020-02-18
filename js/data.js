@@ -78,6 +78,8 @@
   getPinsData();
 
   window.data = {
-    pins: pins
+    pins: pins,
+    pinTopCoordinateMin: 130,
+    pinTopCoordinateMax: 630
   };
 })();
