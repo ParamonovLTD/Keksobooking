@@ -13,22 +13,22 @@
   var pinTopCoordinateMin = 130;
   var pinTopCoordinateMax = 630;
 
+
   var appendPins = function (data) {
     var pinsFragment = document.createDocumentFragment();
 
     data.forEach(function (pin) {
       pinsFragment.appendChild(window.pin.renderPin(pin));
     });
-
     pinListElement.appendChild(pinsFragment);
-
-    window.backend.load(insertCard);
+    insertCard(data);
   };
+
+
   var cardClose = function () {
     var mapCard = map.querySelector('.map__card');
     map.removeChild(mapCard);
   };
-
   var onCardEscapePress = function (evt) {
     var mapCard = map.querySelector('.map__card');
     if (mapCard) {
@@ -36,30 +36,6 @@
     }
   };
 
-  // var insertCard = function () {
-  //   var allPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
-  //   var cardFragment = document.createDocumentFragment();
-
-  //   window.data.pins.forEach(function (pin, index) {
-  //     allPins[index].addEventListener('click', function () {
-
-  //       var mapCard = document.querySelector('.map__card');
-  //       if (mapCard) {
-  //         map.removeChild(mapCard);
-  //       }
-  //       cardFragment.appendChild(window.card.renderCard(pin));
-  //       map.insertBefore(cardFragment, mapFiltersContainer);
-  //       mapCard = document.querySelector('.map__card');
-  //       if (mapCard) {
-  //         var mapCardClose = mapCard.querySelector('.popup__close');
-  //         mapCardClose.addEventListener('click', function () {
-  //           map.removeChild(mapCard);
-  //         });
-  //       }
-  //       window.addEventListener('keydown', onCardEscapePress);
-  //     });
-  //   });
-  // };
 
   var insertCard = function (data) {
     var allPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
@@ -88,7 +64,6 @@
 
 
   var onMapTransition = function (evt) {
-    window.backend.load(appendPins);
     if (evt.which === 1 || evt.keyCode === 13) {
       map.classList.remove('map--faded');
       adForm.classList.remove('ad-form--disabled');
@@ -104,10 +79,21 @@
     }
   };
 
+
+  var cardAssembly = {
+    appendPins: appendPins,
+    onMapTransition: onMapTransition
+  };
+  var onPinsReady = function () {
+    window.backend.load(cardAssembly);
+  };
+
   var inactiveToActive = function () {
     mainMapPin.addEventListener('mousedown', onMapTransition);
     mainMapPin.addEventListener('mousemove', window.form.fillAddress);
     mainMapPin.addEventListener('keydown', onMapTransition);
+    mainMapPin.addEventListener('mousedown', onPinsReady);
+    mainMapPin.addEventListener('keydown', onPinsReady);
   };
 
   inactiveToActive();
