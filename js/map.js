@@ -9,6 +9,9 @@
   var adForm = document.querySelector('.ad-form');
   var formInputs = adForm.querySelectorAll('input');
   var formSelectors = adForm.querySelectorAll('select');
+  var formComment = adForm.querySelector('textarea');
+  var formSubmitButton = adForm.querySelector('.ad-form__submit');
+  var formResetButton = adForm.querySelector('.ad-form__reset');
   var mapFilters = mapFiltersContainer.querySelector('.map__filters');
   var pinTopCoordinateMin = 130;
   var pinTopCoordinateMax = 630;
@@ -23,7 +26,13 @@
     pinListElement.appendChild(pinsFragment);
     insertCard(data);
   };
-
+  var removePins = function () {
+    var allPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+    allPins.forEach(function (pin) {
+      pin.remove();
+    });
+    // map.removeChild(pinListElement);
+  };
 
   var cardClose = function () {
     var mapCard = map.querySelector('.map__card');
@@ -63,7 +72,30 @@
   };
 
 
-  var onMapTransition = function (evt) {
+  var onMapInactiveTransition = function () {
+    map.classList.add('map--faded');
+    adForm.classList.add('ad-form--disabled');
+    formInputs.forEach(function (input) {
+      input.setAttribute('disabled', 'disabled');
+      input.parentElement.setAttribute('disabled', 'disabled');
+    });
+    formSelectors.forEach(function (select) {
+      select.setAttribute('disabled', 'disabled');
+      select.parentElement.setAttribute('disabled', 'disabled');
+    });
+    formComment.setAttribute('disabled', 'disabled');
+    formSubmitButton.setAttribute('disabled', 'disabled');
+    formResetButton.setAttribute('disabled', 'disabled');
+    mapFilters.classList.add('map__filters--disabled');
+    adForm.reset();
+  };
+  var pageLoad = function () {
+    document.addEventListener('DOMContentLoaded', onMapInactiveTransition);
+  };
+  pageLoad();
+
+
+  var onMapActiveTransition = function (evt) {
     if (evt.which === 1 || evt.keyCode === 13) {
       map.classList.remove('map--faded');
       adForm.classList.remove('ad-form--disabled');
@@ -75,6 +107,9 @@
         select.removeAttribute('disabled');
         select.parentElement.removeAttribute('disabled');
       });
+      formComment.removeAttribute('disabled');
+      formSubmitButton.removeAttribute('disabled');
+      formResetButton.removeAttribute('disabled');
       mapFilters.classList.remove('map__filters--disabled');
     }
   };
@@ -82,16 +117,16 @@
 
   var cardAssembly = {
     appendPins: appendPins,
-    onMapTransition: onMapTransition
+    onMapTransition: onMapActiveTransition
   };
   var onPinsReady = function () {
     window.backend.load(cardAssembly);
   };
 
   var inactiveToActive = function () {
-    mainMapPin.addEventListener('mousedown', onMapTransition);
+    mainMapPin.addEventListener('mousedown', onMapActiveTransition);
     mainMapPin.addEventListener('mousemove', window.form.fillAddress);
-    mainMapPin.addEventListener('keydown', onMapTransition);
+    mainMapPin.addEventListener('keydown', onMapActiveTransition);
     mainMapPin.addEventListener('mousedown', onPinsReady);
     mainMapPin.addEventListener('keydown', onPinsReady);
   };
@@ -134,6 +169,11 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
-
   mainMapPin.addEventListener('mousedown', mainPinDrag);
+
+
+  window.map = {
+    onMapInactiveTransition: onMapInactiveTransition,
+    removePins: removePins
+  };
 })();

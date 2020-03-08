@@ -75,6 +75,33 @@
   };
   invalidSelectorsValue();
 
+
+  var onSuccess = function () {
+    window.map.onMapInactiveTransition();
+    window.map.removePins();
+    fillAddress();
+    onHomeTypeChange();
+    window.formStatus.renderSuccessMessage();
+    // document.createElement(successElement);
+  };
+  var onError = function () {
+    window.formStatus.renderErrorMessage();
+  };
+
+  var formReset = function () {
+    var resetButton = adForm.querySelector('.ad-form__reset');
+    resetButton.addEventListener('click', adForm.reset());
+  };
+  formReset();
+  var formSubmit = function () {
+    adForm.addEventListener('submit', function (evt) {
+      window.backend.upLoad(new FormData(adForm), onSuccess, onError);
+      evt.preventDefault();
+    });
+  };
+  formSubmit();
+
+
   window.form = {
     fillAddress: fillAddress
   };
