@@ -3,6 +3,8 @@
 (function () {
   var map = document.querySelector('.map');
   var mapPins = document.querySelector('.map__pins');
+  var pinsMaxQuantity = 5;
+  var allData = [];
   var pinListElement = mapPins;
   var mapFiltersContainer = document.querySelector('.map__filters-container');
   var mainMapPin = mapPins.querySelector('.map__pin--main');
@@ -18,21 +20,26 @@
 
 
   var appendPins = function (data) {
+    data.forEach(function (it) {
+      allData.push(it);
+    });
     var pinsFragment = document.createDocumentFragment();
-
-    data.forEach(function (pin) {
+    var currentData = data.slice(0, pinsMaxQuantity);
+    currentData.forEach(function (pin) {
       pinsFragment.appendChild(window.pin.renderPin(pin));
     });
+    removePins();
     pinListElement.appendChild(pinsFragment);
-    insertCard(data);
+    insertCard(currentData);
   };
+
   var removePins = function () {
     var allPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
     allPins.forEach(function (pin) {
       pin.remove();
     });
-    // map.removeChild(pinListElement);
   };
+
 
   var cardClose = function () {
     var mapCard = map.querySelector('.map__card');
@@ -49,10 +56,8 @@
   var insertCard = function (data) {
     var allPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
     var cardFragment = document.createDocumentFragment();
-
     data.forEach(function (pin, index) {
       allPins[index].addEventListener('click', function () {
-
         var mapCard = document.querySelector('.map__card');
         if (mapCard) {
           map.removeChild(mapCard);
@@ -130,8 +135,8 @@
     mainMapPin.addEventListener('mousedown', onPinsReady);
     mainMapPin.addEventListener('keydown', onPinsReady);
   };
-
   inactiveToActive();
+
 
   var mainPinDrag = function (evt) {
     evt.preventDefault();
@@ -139,7 +144,6 @@
       x: evt.clientX,
       y: evt.clientY
     };
-
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
       var shift = {
@@ -174,6 +178,9 @@
 
   window.map = {
     onMapInactiveTransition: onMapInactiveTransition,
-    removePins: removePins
+    appendPins: appendPins,
+    removePins: removePins,
+    cardClose: cardClose,
+    allData: allData
   };
 })();

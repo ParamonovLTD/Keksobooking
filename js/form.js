@@ -51,6 +51,7 @@
   };
   adTimeChange();
 
+
   var onInvalidSelectors = function () {
     if (+adRoomsSelect.value > 10 && +adCapacitySelect.value !== 0) {
       adRoomsSelect.setCustomValidity('Этот нечеловеческий дом не для гостей.');
@@ -87,6 +88,7 @@
   var onError = function () {
     window.formStatus.renderErrorMessage();
   };
+
 
   var formReset = function () {
     var resetButton = adForm.querySelector('.ad-form__reset');
