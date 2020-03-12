@@ -14,7 +14,6 @@
             onLoad[card](xhr.response);
           }
         }
-        // onLoad(xhr.response);
       } else {
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
@@ -50,7 +49,7 @@
     xhr.addEventListener('timeout', function () {
       onError('Истекло время ожидания.');
     });
-    xhr.timeout = 1;
+    xhr.timeout = 10000;
 
     xhr.send(data);
   };

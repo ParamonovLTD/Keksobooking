@@ -1,20 +1,71 @@
 'use strict';
 
 (function () {
+  var PINS_MAX_QUANTITY = 5;
   var filter = document.querySelector('.map__filters');
   var houseType = filter.querySelector('#housing-type');
+  var housePrice = filter.querySelector('#housing-price');
+  var houseRooms = filter.querySelector('#housing-rooms');
+  var houseGuests = filter.querySelector('#housing-guests');
+  var houseFeatures = Array.from(filter.querySelectorAll('.map__checkbox'));
 
 
-  var onHouseTypeChange = function () {
+  var homeTypeFilter = function (data) {
+    if (houseType.value === 'any') {
+      return true;
+    }
+    return houseType.value === data.offer.type;
+  };
+  var priceFilter = function (data) {
+    switch (housePrice.value) {
+      case 'low':
+        return data.offer.price < 10000;
+      case 'middle':
+        return data.offer.price > 10000 && data.offer.price < 50000;
+      case 'high':
+        return data.offer.price > 50000;
+      default:
+        return data.offer.price > 0;
+    }
+  };
+  var numberSelectsFilter = function (target, data) {
+    if (target.value === 'any') {
+      return data > 0;
+    } else {
+      return data.toString() === target.value;
+    }
+  };
+  var featuresFilter = function (data) {
+    var checkedFeatures = houseFeatures.filter(function (feature) {
+      return feature.checked;
+    });
+    var isFeatureChecked = true;
+    checkedFeatures.forEach(function (feature) {
+      if (isFeatureChecked && data.offer.features.includes(feature.getAttribute('value'))) {
+        isFeatureChecked = true;
+      } else {
+        isFeatureChecked = false;
+      }
+    });
+    return isFeatureChecked;
+  };
+
+
+  var onFilterChange = function () {
     var mapCard = document.querySelector('.map__card');
+    var filteredData = [];
+
     if (mapCard) {
       window.map.cardClose();
     }
-    var houseTypeValue = houseType.value;
-    var filteredData = window.map.allData.filter(function (data) {
-      return data.offer.type === houseTypeValue;
-    });
+    for (var i = 0; i < PINS_MAX_QUANTITY; i++) {
+      window.map.allData.forEach(function (data) {
+        if (homeTypeFilter(data) && priceFilter(data) && numberSelectsFilter(houseRooms, data.offer.rooms) && numberSelectsFilter(houseGuests, data.offer.guests) && featuresFilter(data)) {
+          filteredData.push(data);
+        }
+      });
+    }
     window.map.appendPins(filteredData);
   };
-  houseType.addEventListener('change', onHouseTypeChange);
+  filter.addEventListener('change', window.util.debounce(onFilterChange));
 })();

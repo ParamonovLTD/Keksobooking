@@ -83,7 +83,6 @@
     fillAddress();
     onHomeTypeChange();
     window.formStatus.renderSuccessMessage();
-    // document.createElement(successElement);
   };
   var onError = function () {
     window.formStatus.renderErrorMessage();
