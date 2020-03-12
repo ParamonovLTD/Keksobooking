@@ -28,50 +28,43 @@
         return data.offer.price > 0;
     }
   };
-  var roomsFilter = function (data) {
-    if (houseRooms.value === 'any') {
-      return data.offer.rooms.toString() > 0;
+  var numberSelectsFilter = function (target, data) {
+    if (target.value === 'any') {
+      return data > 0;
     } else {
-      return data.offer.rooms.toString() === houseRooms.value;
-    }
-  };
-  var guestsFilter = function (data) {
-    if (houseGuests.value === 'any') {
-      return data.offer.guests.toString() > 0;
-    } else {
-      return data.offer.guests.toString() === houseGuests.value;
+      return data.toString() === target.value;
     }
   };
   var featuresFilter = function (data) {
     var checkedFeatures = houseFeatures.filter(function (feature) {
       return feature.checked;
     });
-    var isFeature = true;
+    var isFeatureChecked = true;
     checkedFeatures.forEach(function (feature) {
-      if (isFeature && data.offer.features.includes(feature.getAttribute('value'))) {
-        isFeature = true;
+      if (isFeatureChecked && data.offer.features.includes(feature.getAttribute('value'))) {
+        isFeatureChecked = true;
       } else {
-        isFeature = false;
+        isFeatureChecked = false;
       }
     });
-    return isFeature;
+    return isFeatureChecked;
   };
 
 
   var onFilterChange = function () {
     var mapCard = document.querySelector('.map__card');
+    var filteredData = [];
+
     if (mapCard) {
       window.map.cardClose();
     }
-    var i = 0;
-    var filteredData = window.map.allData.filter(function (data) {
-      if (i < PINS_MAX_QUANTITY && homeTypeFilter(data) && priceFilter(data) && roomsFilter(data) && guestsFilter(data) && featuresFilter(data)) {
-        i++;
-        return homeTypeFilter(data) && priceFilter(data) && roomsFilter(data) && guestsFilter(data) && featuresFilter(data);
-      } else {
-        return '';
-      }
-    });
+    for (var i = 0; i < PINS_MAX_QUANTITY; i++) {
+      window.map.allData.forEach(function (data) {
+        if (homeTypeFilter(data) && priceFilter(data) && numberSelectsFilter(houseRooms, data.offer.rooms) && numberSelectsFilter(houseGuests, data.offer.guests) && featuresFilter(data)) {
+          filteredData.push(data);
+        }
+      });
+    }
     window.map.appendPins(filteredData);
   };
   filter.addEventListener('change', window.util.debounce(onFilterChange));
