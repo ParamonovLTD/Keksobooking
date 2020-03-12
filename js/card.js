@@ -9,6 +9,7 @@
   };
   var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
+
   var renderFeatures = function (cardElement, pinData) {
     var cardFeatures = cardElement.querySelectorAll('.popup__feature');
     cardFeatures.forEach(function (feature) {
@@ -18,6 +19,7 @@
       cardElement.querySelector('.popup__feature--' + pinData.offer.features[i]).style = 'display: inline-block;';
     }
   };
+
 
   var renderPhotos = function (cardElement, pinData) {
     var photosFragment = document.createDocumentFragment();
@@ -29,6 +31,7 @@
     cardElement.querySelector('.popup__photos').textContent = '';
     return photosFragment;
   };
+
 
   var renderCard = function (pinData) {
     var cardElement = cardTemplate.cloneNode(true);
@@ -44,6 +47,7 @@
     cardElement.querySelector('.popup__avatar').src = pinData.author.avatar;
     return cardElement;
   };
+
 
   window.card = {
     renderCard: renderCard

@@ -1,22 +1,13 @@
 'use strict';
 
 (function () {
+  var PINS_MAX_QUANTITY = 5;
   var map = document.querySelector('.map');
   var mapPins = document.querySelector('.map__pins');
-  var pinsMaxQuantity = 5;
   var allData = [];
   var pinListElement = mapPins;
   var mapFiltersContainer = document.querySelector('.map__filters-container');
   var mainMapPin = mapPins.querySelector('.map__pin--main');
-  var adForm = document.querySelector('.ad-form');
-  var formInputs = adForm.querySelectorAll('input');
-  var formSelectors = adForm.querySelectorAll('select');
-  var formComment = adForm.querySelector('textarea');
-  var formSubmitButton = adForm.querySelector('.ad-form__submit');
-  var formResetButton = adForm.querySelector('.ad-form__reset');
-  var mapFilters = mapFiltersContainer.querySelector('.map__filters');
-  var pinTopCoordinateMin = 130;
-  var pinTopCoordinateMax = 630;
 
 
   var appendPins = function (data) {
@@ -24,7 +15,7 @@
       allData.push(it);
     });
     var pinsFragment = document.createDocumentFragment();
-    var currentData = data.slice(0, pinsMaxQuantity);
+    var currentData = data.slice(0, PINS_MAX_QUANTITY);
     currentData.forEach(function (pin) {
       pinsFragment.appendChild(window.pin.renderPin(pin));
     });
@@ -32,7 +23,6 @@
     pinListElement.appendChild(pinsFragment);
     insertCard(currentData);
   };
-
   var removePins = function () {
     var allPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
     allPins.forEach(function (pin) {
@@ -77,107 +67,41 @@
   };
 
 
-  var onMapInactiveTransition = function () {
-    map.classList.add('map--faded');
-    adForm.classList.add('ad-form--disabled');
-    formInputs.forEach(function (input) {
-      input.setAttribute('disabled', 'disabled');
-      input.parentElement.setAttribute('disabled', 'disabled');
-    });
-    formSelectors.forEach(function (select) {
-      select.setAttribute('disabled', 'disabled');
-      select.parentElement.setAttribute('disabled', 'disabled');
-    });
-    formComment.setAttribute('disabled', 'disabled');
-    formSubmitButton.setAttribute('disabled', 'disabled');
-    formResetButton.setAttribute('disabled', 'disabled');
-    mapFilters.classList.add('map__filters--disabled');
-    adForm.reset();
-  };
   var pageLoad = function () {
-    document.addEventListener('DOMContentLoaded', onMapInactiveTransition);
+    document.addEventListener('DOMContentLoaded', window.transition.onMapInactiveTransition);
   };
   pageLoad();
 
 
-  var onMapActiveTransition = function (evt) {
-    if (evt.which === 1 || evt.keyCode === 13) {
-      map.classList.remove('map--faded');
-      adForm.classList.remove('ad-form--disabled');
-      formInputs.forEach(function (input) {
-        input.removeAttribute('disabled');
-        input.parentElement.removeAttribute('disabled');
-      });
-      formSelectors.forEach(function (select) {
-        select.removeAttribute('disabled');
-        select.parentElement.removeAttribute('disabled');
-      });
-      formComment.removeAttribute('disabled');
-      formSubmitButton.removeAttribute('disabled');
-      formResetButton.removeAttribute('disabled');
-      mapFilters.classList.remove('map__filters--disabled');
-    }
-  };
-
-
   var cardAssembly = {
     appendPins: appendPins,
-    onMapTransition: onMapActiveTransition
+    onMapTransition: window.transition.onMapActiveTransition
   };
   var onPinsReady = function () {
+    var filter = document.querySelector('.map__filters');
+    filter.reset();
     window.backend.load(cardAssembly);
   };
 
+
   var inactiveToActive = function () {
-    mainMapPin.addEventListener('mousedown', onMapActiveTransition);
+    mainMapPin.addEventListener('mousedown', window.transition.onMapActiveTransition);
     mainMapPin.addEventListener('mousemove', window.form.fillAddress);
-    mainMapPin.addEventListener('keydown', onMapActiveTransition);
+    mainMapPin.addEventListener('keydown', window.transition.onMapActiveTransition);
     mainMapPin.addEventListener('mousedown', onPinsReady);
     mainMapPin.addEventListener('keydown', onPinsReady);
   };
   inactiveToActive();
 
 
-  var mainPinDrag = function (evt) {
-    evt.preventDefault();
-    var startCoords = {
-      x: evt.clientX,
-      y: evt.clientY
-    };
-    var onMouseMove = function (moveEvt) {
-      moveEvt.preventDefault();
-      var shift = {
-        x: moveEvt.clientX - startCoords.x,
-        y: moveEvt.clientY - startCoords.y
-      };
-      startCoords = {
-        x: moveEvt.clientX,
-        y: moveEvt.clientY
-      };
-      if (mainMapPin.offsetTop < pinTopCoordinateMin && mainMapPin.offsetTop + shift.y < mainMapPin.offsetTop) {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-      }
-      if (mainMapPin.offsetTop > pinTopCoordinateMax && mainMapPin.offsetTop + shift.y > mainMapPin.offsetTop) {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-      }
-      mainMapPin.style.top = (mainMapPin.offsetTop + shift.y) + 'px';
-      mainMapPin.style.left = (mainMapPin.offsetLeft + shift.x) + 'px';
-    };
-    var onMouseUp = function (upEvt) {
-      upEvt.preventDefault();
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+  var mainPinDrag = function () {
+    mainMapPin.addEventListener('mousedown', window.onMainPinDrag);
   };
-  mainMapPin.addEventListener('mousedown', mainPinDrag);
+  mainPinDrag();
 
 
   window.map = {
-    onMapInactiveTransition: onMapInactiveTransition,
+    onMapInactiveTransition: window.transition.onMapInactiveTransition,
     appendPins: appendPins,
     removePins: removePins,
     cardClose: cardClose,
