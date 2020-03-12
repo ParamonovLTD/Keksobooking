@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var ESC_KEYCODE = 27;
   var DEBOUNCE_INTERVAL = 500;
 
 
@@ -8,7 +9,7 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
   var isEscapeEvent = function (evt, action) {
-    if (evt.keyCode === 27) {
+    if (evt.keyCode === ESC_KEYCODE) {
       action();
     }
   };

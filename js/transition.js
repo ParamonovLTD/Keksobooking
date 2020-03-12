@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var ENTER_KEYCODE = 13;
   var map = document.querySelector('.map');
   var adForm = document.querySelector('.ad-form');
   var formInputs = adForm.querySelectorAll('input');
@@ -32,7 +33,7 @@
 
 
   var onMapActiveTransition = function (evt) {
-    if (evt.which === 1 || evt.keyCode === 13) {
+    if (evt.which === 1 || evt.keyCode === ENTER_KEYCODE) {
       map.classList.remove('map--faded');
       adForm.classList.remove('ad-form--disabled');
       formInputs.forEach(function (input) {

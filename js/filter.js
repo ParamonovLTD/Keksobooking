@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var PINS_MAX_QUANTITY = 5;
   var filter = document.querySelector('.map__filters');
   var houseType = filter.querySelector('#housing-type');
   var housePrice = filter.querySelector('#housing-price');
@@ -28,27 +29,17 @@
     }
   };
   var roomsFilter = function (data) {
-    switch (houseRooms.value) {
-      case '1':
-        return data.offer.rooms === 1;
-      case '2':
-        return data.offer.rooms === 2;
-      case '3':
-        return data.offer.rooms === 3;
-      default:
-        return data.offer.rooms > 0;
+    if (houseRooms.value === 'any') {
+      return data.offer.rooms.toString() > 0;
+    } else {
+      return data.offer.rooms.toString() === houseRooms.value;
     }
   };
   var guestsFilter = function (data) {
-    switch (houseGuests.value) {
-      case '2':
-        return data.offer.guests === 2;
-      case '1':
-        return data.offer.guests === 1;
-      case '0':
-        return data.offer.guests === 0;
-      default:
-        return data.offer.guests > 0;
+    if (houseGuests.value === 'any') {
+      return data.offer.guests.toString() > 0;
+    } else {
+      return data.offer.guests.toString() === houseGuests.value;
     }
   };
   var featuresFilter = function (data) {
@@ -72,8 +63,14 @@
     if (mapCard) {
       window.map.cardClose();
     }
+    var i = 0;
     var filteredData = window.map.allData.filter(function (data) {
-      return homeTypeFilter(data) && priceFilter(data) && roomsFilter(data) && guestsFilter(data) && featuresFilter(data);
+      if (i < PINS_MAX_QUANTITY && homeTypeFilter(data) && priceFilter(data) && roomsFilter(data) && guestsFilter(data) && featuresFilter(data)) {
+        i++;
+        return homeTypeFilter(data) && priceFilter(data) && roomsFilter(data) && guestsFilter(data) && featuresFilter(data);
+      } else {
+        return '';
+      }
     });
     window.map.appendPins(filteredData);
   };
