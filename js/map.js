@@ -105,6 +105,7 @@
     appendPins: appendPins,
     removePins: removePins,
     cardClose: cardClose,
-    allData: allData
+    allData: allData,
+    PINS_MAX_QUANTITY: PINS_MAX_QUANTITY
   };
 })();

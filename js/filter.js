@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  var PINS_MAX_QUANTITY = 5;
   var filter = document.querySelector('.map__filters');
   var houseType = filter.querySelector('#housing-type');
   var housePrice = filter.querySelector('#housing-price');
@@ -41,11 +40,7 @@
     });
     var isFeatureChecked = true;
     checkedFeatures.forEach(function (feature) {
-      if (isFeatureChecked && data.offer.features.includes(feature.getAttribute('value'))) {
-        isFeatureChecked = true;
-      } else {
-        isFeatureChecked = false;
-      }
+      isFeatureChecked = isFeatureChecked && data.offer.features.includes(feature.getAttribute('value')) ? true : false;
     });
     return isFeatureChecked;
   };
@@ -58,12 +53,12 @@
     if (mapCard) {
       window.map.cardClose();
     }
-    for (var i = 0; i < PINS_MAX_QUANTITY; i++) {
-      window.map.allData.forEach(function (data) {
-        if (homeTypeFilter(data) && priceFilter(data) && numberSelectsFilter(houseRooms, data.offer.rooms) && numberSelectsFilter(houseGuests, data.offer.guests) && featuresFilter(data)) {
-          filteredData.push(data);
-        }
-      });
+    for (var i = 0; i < window.map.allData.length && filteredData.length < window.map.PINS_MAX_QUANTITY; i++) {
+      var data = window.map.allData[i];
+      if (homeTypeFilter(data) && priceFilter(data) && numberSelectsFilter(houseRooms, data.offer.rooms) &&
+          numberSelectsFilter(houseGuests, data.offer.guests) && featuresFilter(data)) {
+        filteredData.push(data);
+      }
     }
     window.map.appendPins(filteredData);
   };

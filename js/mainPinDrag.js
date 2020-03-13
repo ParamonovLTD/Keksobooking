@@ -7,27 +7,28 @@
   var mainMapPin = mapPins.querySelector('.map__pin--main');
 
 
+  var Coordinate = function (x, y) {
+    this.x = x;
+    this.y = y;
+  };
+
+
   window.onMainPinDrag = function (evt) {
     evt.preventDefault();
-    var startCoords = {
-      x: evt.clientX,
-      y: evt.clientY
-    };
+    var startCoords = new Coordinate(evt.clientX, evt.clientY);
+
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
-      var shift = {
-        x: moveEvt.clientX - startCoords.x,
-        y: moveEvt.clientY - startCoords.y
-      };
-      startCoords = {
-        x: moveEvt.clientX,
-        y: moveEvt.clientY
-      };
-      if (mainMapPin.offsetTop < PIN_TOP_COORDINATE_MIN && mainMapPin.offsetTop + shift.y < mainMapPin.offsetTop) {
+      var shift = new Coordinate(moveEvt.clientX - startCoords.x, moveEvt.clientY - startCoords.y);
+      startCoords = new Coordinate(moveEvt.clientX, moveEvt.clientY);
+
+      if (mainMapPin.offsetTop < PIN_TOP_COORDINATE_MIN &&
+          mainMapPin.offsetTop + shift.y < mainMapPin.offsetTop) {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
       }
-      if (mainMapPin.offsetTop > PIN_TOP_COORDINATE_MAX && mainMapPin.offsetTop + shift.y > mainMapPin.offsetTop) {
+      if (mainMapPin.offsetTop > PIN_TOP_COORDINATE_MAX &&
+          mainMapPin.offsetTop + shift.y > mainMapPin.offsetTop) {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
       }

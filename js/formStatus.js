@@ -29,13 +29,7 @@
     }
   };
   var onMessageEscapePress = function (evt) {
-    var successMessage = main.querySelector('.success');
-    var errorMessage = main.querySelector('.error');
-    if (successMessage) {
-      window.util.isEscapeEvent(evt, messageEscapePressClose);
-    } else if (errorMessage) {
-      window.util.isEscapeEvent(evt, messageEscapePressClose);
-    }
+    window.util.isEscapeEvent(evt, messageEscapePressClose);
   };
 
 
